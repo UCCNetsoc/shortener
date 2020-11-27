@@ -3,6 +3,7 @@ package database
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	// postgres driver
 	"gorm.io/driver/postgres"
@@ -25,7 +26,7 @@ func InitDatabase() *Client {
 			viper.GetString("db.database"), viper.GetString("db.port"))), &gorm.Config{},
 	)
 	if err != nil {
-		return InitDatabase()
+		log.Fatal("couldn't connect to database\n", err)
 	}
 
 	// migrate tablesS
