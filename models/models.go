@@ -1,7 +1,8 @@
 package models
 
-// RedirectURL structure containing the url and it's slug
-type RedirectURL struct {
-	Slug string `gorm:"unique"`
-	URL  string
+// Request contains the domain, slug and target domain
+type Request struct {
+	Domain string `json:"domain"`
+	Slug   string `json:"slug"`
+	Target string `json:"target"`
 }

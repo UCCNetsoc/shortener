@@ -16,27 +16,22 @@ func generateHash(url string) string {
 }
 
 // SetRedirect generates a new hashmap entry from unix nano time
-func setRedirect(url, slug string) int {
+func setRedirect(req *models.Request) int {
 
 	// checks for duplicates of the first 5 chars, if it exist, go to 6, if still exists, rehash with time
-	if !client.Duplicate(slug) {
-		redirectURL := models.RedirectURL{Slug: slug, URL: url}
-		client.CreateNew(&redirectURL)
+	if !client.Duplicate(req.Domain, req.Slug) {
+		client.CreateNew(req)
 		return 201
 	}
 	return 409
 }
 
-// GetRedirect returns the stored url for given hash
-func getRedirect(slug string) string {
-	// if url not in cache, look for it in database
-	value := models.RedirectURL{URL: getFromDB(slug), Slug: slug}
-	log.Println("hitting db for ", slug, " redirecting to ", value.URL)
-
-	return value.URL
-}
-
-// getFromDB if not in cache
-func getFromDB(hash string) string {
-	return client.FindByHash(hash).URL
+// GetRedirect returns the stored url for given slug
+func getRedirect(domain, slug string) string {
+	target := client.FindRedirect(domain, slug).Target
+	if target != "" {
+		log.Println("hitting db for ", slug, " redirecting to ", target)
+	}
+	// return whether target is "" or otherwise
+	return target
 }

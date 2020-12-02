@@ -10,5 +10,5 @@ import (
 // Route ...
 func Route(r *chi.Mux) {
 	r.Get("/{slug}", views.GetURL)
-	r.With(middleware.Mid).Post("/{slug}/*", views.PostURL)
+	r.With(middleware.Mid).Post("/", views.PostURL)
 }

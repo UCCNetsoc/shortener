@@ -14,7 +14,6 @@ func InitConfig() {
 }
 
 func initDefaults() {
-	viper.SetDefault("api.token", "")
 	viper.SetDefault("db.host", "")
 	viper.SetDefault("db.user", "")
 	viper.SetDefault("db.port", "")

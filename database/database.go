@@ -29,22 +29,21 @@ func InitDatabase() *Client {
 		log.Fatal("couldn't connect to database\n", err)
 	}
 
-	// migrate tablesS
-	conn.AutoMigrate(&models.RedirectURL{})
-
+	// migrate tables
+	conn.AutoMigrate(&models.Request{})
 	return &Client{conn}
 }
 
-// FindByHash returns a HashURL pointer
-func (c *Client) FindByHash(slug string) *models.RedirectURL {
-	var hashurl models.RedirectURL
-	c.conn.Where("slug = ?", slug).First(&hashurl)
-	return &hashurl
+// FindRedirect returns a request object, taking the domain and slug as params
+func (c *Client) FindRedirect(domain, slug string) *models.Request {
+	var req models.Request
+	c.conn.Where("domain = ? AND slug = ?", domain, slug).First(&req)
+	return &req
 }
 
 // CreateNew creates a new shortened url, and reutrns the error
-func (c *Client) CreateNew(shortened *models.RedirectURL) (bool, error) {
-	result := c.conn.Create(&shortened)
+func (c *Client) CreateNew(req *models.Request) (bool, error) {
+	result := c.conn.Create(&req)
 	if result.RowsAffected < 1 {
 		return false, result.Error
 	}
@@ -52,9 +51,9 @@ func (c *Client) CreateNew(shortened *models.RedirectURL) (bool, error) {
 }
 
 // Duplicate checks for duplicate hashes
-func (c *Client) Duplicate(slug string) bool {
-	var preExisting models.RedirectURL
-	err := c.conn.Where("slug = ?", slug).First(&preExisting).Error
+func (c *Client) Duplicate(domain, slug string) bool {
+	var preExisting models.Request
+	err := c.conn.Where("domain = ? AND slug = ?", domain, slug).First(&preExisting).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return false
 	}
