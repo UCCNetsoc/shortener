@@ -51,14 +51,14 @@ steps:
       branch:
         - master
 
-  - name: sourcegraph_lsif
-    image: sourcegraph/lsif-go
-    environment:
-      GITHUB_TOKEN:
-        from_secret: public_repo_token
-    commands:
-      - lsif-go
-      - src lsif upload -github-token=$${GITHUB_TOKEN}
+#   - name: sourcegraph_lsif
+#     image: sourcegraph/lsif-go
+#     environment:
+#       GITHUB_TOKEN:
+#         from_secret: public_repo_token
+#     commands:
+#       - lsif-go
+#       - src lsif upload -github-token=$${GITHUB_TOKEN}
 
     environment:
       KEY_WEB:
