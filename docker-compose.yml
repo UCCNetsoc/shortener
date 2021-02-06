@@ -9,8 +9,12 @@ services:
       traefik.http.routers.shortener.entrypoints: "web"
       traefik.http.services.shortener.loadbalancer.server.port: "8080"
       traefik.http.routers.shortener.service: "shortener"
+      # user:password1234
+      traefik.http.routers.shortener-auth.rule: "Host(`code-test.galligan.dev`) && PathPrefix(`/api`)"
       traefik.http.middlewares.shortener-auth.basicauth.users: "user:$$apr1$$3Hy37MHO$$DzF1nqmcOF15wXvO9ELtb0"
-      traefik.http.routers.shortener.middlewares: "shortener-auth"
+      traefik.http.routers.shortener-auth.middlewares: "shortener-auth"
+      traefik.http.routers.shortener.entrypoints: "web"
+      traefik.http.services.shortener.loadbalancer.server.port: "8080"
     environment:
       - DB_USER=postgres
       - DB_PASS=password1234
