@@ -22,38 +22,49 @@ type Client struct {
 func InitDatabase() *Client {
 	conn, err := gorm.Open(postgres.Open(
 		fmt.Sprintf("user=%s password=%s host=%s dbname=%s port=%s sslmode=disable",
-			viper.GetString("db.user"), viper.GetString("db.password"), viper.GetString("db.host"),
-			viper.GetString("db.database"), viper.GetString("db.port"))), &gorm.Config{},
+			viper.GetString("db.user"), viper.GetString("db.pass"), viper.GetString("db.host"),
+			viper.GetString("db.name"), viper.GetString("db.port"))), &gorm.Config{},
 	)
 	if err != nil {
-		log.Fatal("couldn't connect to database\n", err)
+		log.Println("couldn't connect to database\n", err)
+		log.Println("Password: ", viper.GetString("db.pass"))
 	}
 
 	// migrate tables
-	conn.AutoMigrate(&models.Request{})
+	conn.AutoMigrate(&models.Link{})
 	return &Client{conn}
 }
 
 // FindRedirect returns a request object, taking the domain and slug as params
-func (c *Client) FindRedirect(domain, slug string) *models.Request {
-	var req models.Request
-	c.conn.Where("domain = ? AND slug = ?", domain, slug).First(&req)
+func (c *Client) FindRedirect(slug string) *models.Link {
+	var req models.Link
+	c.conn.Where("slug = ?", slug).First(&req)
 	return &req
 }
 
 // CreateNew creates a new shortened url, and reutrns the error
-func (c *Client) CreateNew(req *models.Request) (bool, error) {
+func (c *Client) CreateNew(req *models.Link) (bool, error) {
 	result := c.conn.Create(&req)
 	if result.RowsAffected < 1 {
 		return false, result.Error
 	}
-	return false, nil
+	return true, nil
+}
+
+// DeleteSlug deletes a slug
+func (c *Client) DeleteSlug(slug string) (bool, error) {
+	req := &models.Link{Slug: slug}
+	result := c.conn.Delete(req)
+	if result.RowsAffected < 1 {
+		return false, result.Error
+	}
+	return true, nil
 }
 
 // Duplicate checks for duplicate hashes
-func (c *Client) Duplicate(domain, slug string) bool {
-	var preExisting models.Request
-	err := c.conn.Where("domain = ? AND slug = ?", domain, slug).First(&preExisting).Error
+func (c *Client) Duplicate(slug string) bool {
+	var preExisting models.Link
+	err := c.conn.Where("slug = ?", slug).First(&preExisting).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return false
 	}
