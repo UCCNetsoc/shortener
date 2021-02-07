@@ -2,12 +2,14 @@ package views
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 
 	"github.com/UCCNetsoc/shortener/database"
 	"github.com/UCCNetsoc/shortener/models"
 	"github.com/go-chi/chi"
+	"gorm.io/gorm"
 )
 
 var client *database.Client
@@ -40,8 +42,14 @@ func DeleteLink(w http.ResponseWriter, r *http.Request) {
 	slug := chi.URLParam(r, "slug")
 	ok, err := client.DeleteSlug(slug)
 	if !ok {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Println("slug not found")
+			w.WriteHeader(404)
+			return
+		}
 		log.Println("couldnt delete slug\n", err)
 		w.WriteHeader(500)
+		return
 	}
 	w.WriteHeader(202)
 }
