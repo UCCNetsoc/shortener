@@ -22,6 +22,7 @@ func InitViews() {
 // PostLink creates a new redirect from given slug and url
 func PostLink(w http.ResponseWriter, r *http.Request) {
 	var req models.Link
+	log.Println("creating slug")
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil || req.Slug == "" || req.URL == "" {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
