@@ -14,6 +14,8 @@ func InitConfig() {
 }
 
 func initDefaults() {
+	viper.SetDefault("shortener.user", "")
+	viper.SetDefault("shortener.password", "")
 	viper.SetDefault("db.host", "")
 	viper.SetDefault("db.user", "")
 	viper.SetDefault("db.port", "")
