@@ -21,7 +21,7 @@ func Route(r *chi.Mux) {
 func apiRouter() http.Handler {
 	r := chi.NewRouter()
 	r.Use(mid.Auth)
-	r.Post("/api", views.PostLink)
-	r.Delete("/api/{slug}", views.DeleteLink)
+	r.Post("/", views.PostLink)
+	r.Delete("/{slug}", views.DeleteLink)
 	return r
 }
