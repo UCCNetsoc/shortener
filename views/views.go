@@ -44,7 +44,7 @@ func PostLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	result := setRedirect(&req)
-	encoded, err := json.Marshal(result)
+	encoded, err := json.Marshal(&result)
 	if err != nil {
 		log.Println("couldn't create link")
 		w.WriteHeader(http.StatusConflict)
@@ -52,6 +52,7 @@ func PostLink(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	w.Write(encoded)
+	log.Println("Encoded json: ", encoded)
 }
 
 // DeleteLink removes a Link
