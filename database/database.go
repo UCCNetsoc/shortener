@@ -35,6 +35,13 @@ func InitDatabase() *Client {
 	return &Client{conn}
 }
 
+// FetchLinks gets a full dump of links from db
+func (c *Client) FetchLinks() *[]models.Link {
+	var links []models.Link
+	c.conn.Find(&links)
+	return &links
+}
+
 // FindRedirect returns a request object, taking the domain and slug as params
 func (c *Client) FindRedirect(slug string) *models.Link {
 	var req models.Link

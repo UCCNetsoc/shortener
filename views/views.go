@@ -19,19 +19,34 @@ func InitViews() {
 	client = database.InitDatabase()
 }
 
+// GetLinks fetches all links from db
+func GetLinks(w http.ResponseWriter, r *http.Request) {
+	links := client.FetchLinks()
+	encoded, err := json.Marshal(links)
+	if err != nil {
+		log.Println("couldn't fetch links")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(encoded)
+}
+
 // PostLink creates a new redirect from given slug and url
 func PostLink(w http.ResponseWriter, r *http.Request) {
 	var req models.Link
 	log.Println("creating slug")
 	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil || req.Slug == "" || req.URL == "" {
+	if err != nil || req.URL == "" {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		log.Println("couldn't read body or url was not present")
 		return
 	}
 	result := setRedirect(&req)
 	w.WriteHeader(result)
 	switch result {
-	case 201:
+	case http.StatusCreated:
 		log.Println("created slug")
 	default:
 		log.Println("duplicate slug exists for ", req.Slug)

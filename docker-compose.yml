@@ -3,28 +3,18 @@ services:
   api:
     build: .
     container_name: shortener-api
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.shortener.rule: "Host(`code-test.galligan.dev`)"
-      traefik.http.routers.shortener.entrypoints: "web"
-      traefik.http.services.shortener.loadbalancer.server.port: "8080"
-      traefik.http.routers.shortener.service: "shortener"
-      # user:password1234
-      traefik.http.routers.shortener-auth.rule: "Host(`code-test.galligan.dev`) && PathPrefix(`/api`)"
-      traefik.http.middlewares.shortener-auth.basicauth.users: "user:$$apr1$$3Hy37MHO$$DzF1nqmcOF15wXvO9ELtb0"
-      traefik.http.routers.shortener-auth.middlewares: "shortener-auth"
-      traefik.http.routers.shortener.entrypoints: "web"
-      traefik.http.services.shortener.loadbalancer.server.port: "8080"
+    ports:
+      - "8080:8080"
     environment:
+      - SHORTENER_USER=shortener
+      - SHORTENER_PASSWORD=shortpassword
       - DB_USER=postgres
       - DB_PASS=password1234
       - DB_NAME=postgres
       - DB_HOST=db
       - DB_PORT=5432
-    links:
-      - db:db
-    networks:
-      traefik:
+    depends_on: 
+      - db
 
   db:
     image: bitnami/postgresql
@@ -34,24 +24,3 @@ services:
       - POSTGRESQL_USERNAME=postgres
       - POSTGRESQL_PASSWORD=password1234
       - POSTGRESQL_DATABASE=postgres
-
-    networks:
-      traefik:
-
-  traefik:
-    image: traefik:v2.3
-    command: --api.insecure=true --entryPoints.web.address=:80 --providers.docker=true --providers.docker.exposedbydefault=false
-
-    ports:
-      - "80:80"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.traefik.entrypoints: "web"
-      traefik.docker.network: "traefik"
-    networks:
-      traefik:
-
-networks:
-  traefik:
