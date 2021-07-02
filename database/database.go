@@ -50,12 +50,12 @@ func (c *Client) FindRedirect(slug string) *models.Link {
 }
 
 // CreateNew creates a new shortened url, and reutrns the error
-func (c *Client) CreateNew(req *models.Link) (bool, error) {
+func (c *Client) CreateNew(req *models.Link) (*models.Link, error) {
 	result := c.conn.Create(&req)
 	if result.RowsAffected < 1 {
-		return false, result.Error
+		return nil, result.Error
 	}
-	return true, nil
+	return req, nil
 }
 
 // DeleteSlug deletes a slug

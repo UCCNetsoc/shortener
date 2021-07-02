@@ -1,31 +1,31 @@
 package views
 
 import (
-	"crypto/rand"
 	"log"
-	"net/http"
+	"math/rand"
 
 	"github.com/UCCNetsoc/shortener/models"
 )
 
 // SetRedirect generates a new hashmap entry from unix nano time
-func setRedirect(req *models.Link) int {
+func setRedirect(req *models.Link) *models.Link {
 
 	// if no slug is provided
 	if req.Slug == "" {
-		byteArr := make ([]byte, 5)
-		num, err := rand.Read(byteArr)
-		if err != nil && num != 5 {
-			log.Println("failed to generate a random string\n", err)
-			return http.StatusInternalServerError
+		runes := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+		for i:=0;i<6;i++ {
+			req.Slug += string(runes[rand.Intn(61)])
 		}
 	}
 
 	if !client.Duplicate(req.Slug) {
-		client.CreateNew(req)
-		return http.StatusCreated
+		resp, err := client.CreateNew(req)
+		if err != nil || resp == nil {
+			log.Println("failed to create shortened link")
+		}
+		return resp
 	}
-	return http.StatusConflict
+	return nil
 }
 
 // GetRedirect returns the stored url for given slug

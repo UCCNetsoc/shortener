@@ -44,13 +44,14 @@ func PostLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	result := setRedirect(&req)
-	w.WriteHeader(result)
-	switch result {
-	case http.StatusCreated:
-		log.Println("created slug")
-	default:
-		log.Println("duplicate slug exists for ", req.Slug)
+	encoded, err := json.Marshal(result)
+	if err != nil {
+		log.Println("couldn't create link")
+		w.WriteHeader(http.StatusConflict)
 	}
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	w.Write(encoded)
 }
 
 // DeleteLink removes a Link
